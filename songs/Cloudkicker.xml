@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<song>
+	<title>From The Balcony</title>
+	<artist>Cloudkicker</artist>
+	<album>Fade</album>
+	<path>../wavFiles/FromTheBalcony.wav</path>
+	<bpm>95.3</bpm>
+	<loop>
+		<parameter></parameter>
+		<threshold></threshold>
+	</loop>
+</song>
