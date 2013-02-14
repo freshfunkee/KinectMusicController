@@ -40,7 +40,7 @@ void CVImage::mapKinectImage( byte *colorBits, long *depthPoint )
 	cv::circle( pixels_, cv::Point( *depthPoint, *depthPoint++), JOINT_RADIUS, jointColor_, 2 );
 	depthPoint++;
 	cv::circle( pixels_, cv::Point( *depthPoint, *depthPoint++), JOINT_RADIUS, jointColor_, 2 );
-	drawPlayButton();
+	//drawPlayButton();
 }
 
 void CVImage::setScreenDimensions( DWORD &width, DWORD &height )

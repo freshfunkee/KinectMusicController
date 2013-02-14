@@ -211,7 +211,7 @@ int main()
 
 						sum /= TIME_SAMPLES-2;
 
-						if((sum > previnterval+TEMPO_THRESHOLD) || (sum < previnterval-TEMPO_THRESHOLD))
+						if(((sum > previnterval+TEMPO_THRESHOLD) || (sum < previnterval-TEMPO_THRESHOLD)) && sum > 0)
 						{
 							playback->setPlaybackRate(sum);
 						}
@@ -243,9 +243,9 @@ int main()
 		gui->displayFrame();
 	}
 
-	delete(kinect);
-	delete(gui);
-	delete(playback);
+	delete gui;
+	delete kinect;
+	delete playback;
 
 	return 0;
 }

@@ -10,13 +10,16 @@ SongPlayback::SongPlayback(Song *song)
 
 SongPlayback::~SongPlayback()
 {
+	printf("\nSongPlayBack destructor");
 	result_ = stream1_->release();
 	errchk(result_);
+	printf("\nStream");
 	result_ = system_->close();
 	errchk(result_);
+	printf("\nSystem");
 	result_ = system_->release();
 	errchk(result_);
-
+	printf("\nSystem");
 }
 
 int SongPlayback::initialize()
@@ -55,8 +58,11 @@ void SongPlayback::setPlaybackRate(int& sum)
 	result_ = channel_->setFrequency(spfreq_);
 	errchk(result_);
 
-	result_ = pitch_->setParameter(FMOD_DSP_PITCHSHIFT_PITCH, (defreq_/spfreq_));
-	errchk(result_);
+	if((defreq_/spfreq_)>0)
+	{
+		result_ = pitch_->setParameter(FMOD_DSP_PITCHSHIFT_PITCH, (defreq_/spfreq_));
+		errchk(result_);
+	}
 
 	result_ = system_->update();
 	errchk(result_);
@@ -69,7 +75,6 @@ void SongPlayback::setLowpassCutoff(float &cutoff)
 	result_ = lowpass_->setParameter(FMOD_DSP_LOWPASS_CUTOFF, cutoff);
 	errchk(result_);
 }
-
 
 void SongPlayback::startPlayback()
 {

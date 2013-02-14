@@ -8,10 +8,13 @@ KinectController::KinectController(CVImage *image)
 
 KinectController::~KinectController()
 {
+	printf("\nKinect Destructor");
 	if(kinect_ != NULL)
 	{
 		kinect_->NuiShutdown();
+		printf("\nNui");
 		kinect_->Release();
+		printf("\nNui Release");
 	}
 }
 

@@ -6,10 +6,12 @@ Gui::Gui(CVImage *image)
 	cvImage_ = image;
 	screen_ = NULL;
 	surface_ = NULL;
+	pauseSurface_ = IMG_Load("PauseButton.png");
 }
 
 Gui::~Gui()
 {
+	SDL_FreeSurface(pauseSurface_);
 	if(screen_ != NULL)
 	{
 		SDL_FreeSurface(screen_);
@@ -17,6 +19,7 @@ Gui::~Gui()
 	TTF_CloseFont(font_);
 	TTF_Quit();
 	SDL_Quit();
+	printf("SDL Closed");
 }
 
 void Gui::initialize()
@@ -84,7 +87,7 @@ void Gui::displayFrame()
 
 	if (!screen_) 
     {
-        screen_ = SDL_SetVideoMode(frame_.width, frame_.height, 0, 0);
+        screen_ = SDL_SetVideoMode(1280, 960, 0, SDL_SWSURFACE | SDL_NOFRAME);
         if (!screen_) 
         {
             fprintf(stderr, "SDL: could not set video mode - exiting\n");
@@ -111,7 +114,15 @@ void Gui::displayFrame()
 	}
 
 	SDL_FreeSurface(surface_);
+	drawGui();
 
     SDL_Flip(screen_);
 }
+
+void Gui::drawGui()
+{
+	SDL_Rect pauseLocation = { 50, 25, 0, 0 };
+	SDL_BlitSurface(pauseSurface_, NULL, screen_, &pauseLocation);
+}
+
 

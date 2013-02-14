@@ -13,7 +13,7 @@
 typedef enum {
 	eSteamUninitialised,
 	eStreamPaused,
-	eStreamPlaying
+	eStreamPlaying,
 } StreamState;
 
 class SongPlayback
