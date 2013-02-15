@@ -19,7 +19,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "CVImage.h"
 #include "KinectController.h"
 #include "Gui.h"
 #include "SongPlayback.h"
@@ -55,18 +54,16 @@ int main()
 
 	SongPlayback *playback = new SongPlayback(trackSelection);
 
-	CVImage *cvImage = new CVImage(playback);
-	KinectController *kinect = new KinectController(cvImage);
-	Gui *gui = new Gui(cvImage);
+	Gui *gui = new Gui();
+	KinectController *kinect = new KinectController(gui);
 
+	gui->initialize();
 	kinect->initialize();
 	playback->initialize();
-	gui->initialize();
 
 	delete(trackSelection);
 
 	float rhPos, lhPos, prevPos=0, y;
-	cv::Mat pixels;
 	printf("\n\n");
 
 	StreamState state = eStreamPaused;
@@ -74,8 +71,10 @@ int main()
 	string tempo = "Tempo";
 	float bpm;
 
-	while( !(_kbhit()) )
-	{
+	
+	//while( !(_kbhit()) )
+	//{
+		/*
 		rhPos = kinect->getHandRightPos();
 		lhPos = kinect->getHandLeftPos();
 
@@ -224,8 +223,10 @@ int main()
 			} 
 			prevPos = rhPos;
 			break;
+			
 		}
-
+		*/
+		
 		/*if(!(pixels.empty()))
 		{
 			IplImage image = pixels;
@@ -240,8 +241,10 @@ int main()
 			printf("\n\nEmpty pixel frame\n\n");
 		}*/
 
-		gui->displayFrame();
-	}
+		//gui->displayFrame();
+	//}
+
+	kinect->run();
 
 	delete gui;
 	delete kinect;

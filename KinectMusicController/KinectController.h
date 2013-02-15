@@ -1,10 +1,11 @@
 #ifndef KINECTCONTROLLER_H
 #define KINECTCONTROLLER_H
 
-class CVImage;
 #include <Windows.h>
-
+#include <sstream>
 #include <NuiApi.h>
+
+class Gui;
 
 #define ERROR_CHECK( ret )  \
   if ( ret != S_OK ) {      \
@@ -18,30 +19,22 @@ const NUI_IMAGE_RESOLUTION CAMERA_RESOLUTION = NUI_IMAGE_RESOLUTION_640x480;
 class KinectController
 {
 public:
-	KinectController(CVImage*);
+	KinectController(Gui*);
 	~KinectController();
 
 	void initialize();
-	void getPixelMap();
-	float getHandRightPos();
-	float getHandLeftPos();
+	void run();
+	void getJointValues(long&,long&,long&,Vector4);
 
 private:
 	INuiSensor *kinect_;
-	HANDLE imageStreamHandle_, septhStreamImageHandle_, streamEvent_;
-	CVImage *cvImage_;
-
-	float depthX_, depthY_;
-	Vector4 handRight_, handLeft_;
+	HANDLE  skeletonEvent_;
+	long **skelMatrix_;
+	Gui *gui_;
 
 	DWORD width, height;
-
 	void createInstance();
-	void mapPixels();
-	void skeletonVector(Vector4&, bool);
-	
-	void getJointLocation( Vector4&, long* );
-
+	void errchk(HRESULT);
 };
 
 #endif

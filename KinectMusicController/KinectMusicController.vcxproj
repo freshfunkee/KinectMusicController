@@ -84,7 +84,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CVImage.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="KinectController.cpp" />
     <ClCompile Include="main.cpp" />
@@ -92,7 +91,6 @@
     <ClCompile Include="SongPlayback.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CVImage.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="KinectController.h" />
     <ClInclude Include="Song.h" />
