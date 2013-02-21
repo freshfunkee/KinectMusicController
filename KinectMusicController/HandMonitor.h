@@ -1,18 +1,32 @@
 #ifndef HANDMONITOR_H
 #define HANDMONITOR_H
 
+#include "Gui.h"
+class SongPlayback;
+
 class HandMonitor
 {
 public:
-	HandMonitor();
+	HandMonitor(SongPlayback*,Gui*);
 	~HandMonitor();
 
 	void init();
-	void monitor();
+	void monitor(long **);
 private:
-	bool checkTimeout(Uint32 &);
+	bool checkTimeout(unsigned int &, int button);
+	void checkStates();
+	void setTempoParams();
+	void setFilterParams();
+	void addTempoMeasure();
+	void calcTempo();
 
-	float x,y,z;
-	bool done;
+	long rhX_,rhY_,rhYprev_,rhYrel_,rhZ_,lhX_,lhY_,lhZ_, initialDepth_;
+	unsigned int startHover_, curTime_, prevTime_, sumMeasurePrev_, *measures_;
+	short measureCount_;
+	bool decY_;
+	
+	ButtonState *buttonStates_;
+	SongPlayback *playback_;
+	Gui *gui_;
 };
 #endif

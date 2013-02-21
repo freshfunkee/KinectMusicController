@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CVImage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,11 +30,11 @@
     <ClCompile Include="SongPlayback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HandMonitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CVImage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KinectController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

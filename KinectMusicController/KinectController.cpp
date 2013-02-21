@@ -1,12 +1,12 @@
 #include "KinectController.h"
 
-#include "Gui.h"
+#include "HandMonitor.h"
 
 #include <conio.h>
 
-KinectController::KinectController(Gui *gui)
+KinectController::KinectController(HandMonitor *handMonitor)
 {
-	gui_ = gui;
+	monitor_ = handMonitor;
 
 	skelMatrix_ = new long *[NUI_SKELETON_POSITION_COUNT];
 
@@ -18,18 +18,20 @@ KinectController::KinectController(Gui *gui)
 
 KinectController::~KinectController()
 {
-	if(kinect_ != NULL)
-	{
-		kinect_->NuiShutdown();
-		kinect_->Release();
-	}
-
 	for(int i=0;i<NUI_SKELETON_POSITION_COUNT;i++)
     {
         delete [] skelMatrix_[i];
     }
 
     delete [] skelMatrix_;
+
+	if(kinect_ != NULL)
+	{
+		kinect_->NuiShutdown();
+		printf("NuiShutdown complete");
+		kinect_->Release();
+		printf("Release complete");
+	}
 }
 
 void KinectController::initialize()
@@ -76,7 +78,7 @@ void KinectController::run()
 			}
 		}
 
-		gui_->displayFrame(skelMatrix_);
+		monitor_->monitor(skelMatrix_);
 		Sleep(17);
 	}
 }

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <NuiApi.h>
 
-class Gui;
+class HandMonitor;
 
 #define ERROR_CHECK( ret )  \
   if ( ret != S_OK ) {      \
@@ -19,7 +19,7 @@ const NUI_IMAGE_RESOLUTION CAMERA_RESOLUTION = NUI_IMAGE_RESOLUTION_640x480;
 class KinectController
 {
 public:
-	KinectController(Gui*);
+	KinectController(HandMonitor*);
 	~KinectController();
 
 	void initialize();
@@ -30,7 +30,7 @@ private:
 	INuiSensor *kinect_;
 	HANDLE  skeletonEvent_;
 	long **skelMatrix_;
-	Gui *gui_;
+	HandMonitor *monitor_;
 
 	DWORD width, height;
 	void createInstance();

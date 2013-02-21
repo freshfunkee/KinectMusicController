@@ -22,17 +22,14 @@
 #include "KinectController.h"
 #include "Gui.h"
 #include "SongPlayback.h"
+#include "HandMonitor.h"
 
 #define XML_PATH "..\\songs"
-#define TEMPO_THRESHOLD 25
-#define TIME_SAMPLES 8
-#define HOVER_TIME 2000
 
 using namespace std;
 namespace fs = boost::filesystem;
 
 string chooseFile();
-bool checkPressTime(Uint32&);
 
 int main()
 {
@@ -48,14 +45,11 @@ int main()
 
 	cout << "\nTrack:\t" << trackSelection->getTitle() << "\nArtist:\t" << trackSelection->getArtist() << endl;
 
-	int now = 0, prev = 0, interval [TIME_SAMPLES] = {0}, previnterval = 0, min =0, max =0, sum=0;
-	int count =0,i=0;
-	bool decY = false;
-
 	SongPlayback *playback = new SongPlayback(trackSelection);
 
 	Gui *gui = new Gui();
-	KinectController *kinect = new KinectController(gui);
+	HandMonitor *monitor = new HandMonitor(playback, gui);
+	KinectController *kinect = new KinectController(monitor);
 
 	gui->initialize();
 	kinect->initialize();
@@ -63,192 +57,14 @@ int main()
 
 	delete(trackSelection);
 
-	float rhPos, lhPos, prevPos=0, y;
 	printf("\n\n");
-
-	StreamState state = eStreamPaused;
-	Uint32 startHover = 0;
-	string tempo = "Tempo";
-	float bpm;
-
-	
-	//while( !(_kbhit()) )
-	//{
-		/*
-		rhPos = kinect->getHandRightPos();
-		lhPos = kinect->getHandLeftPos();
-
-		kinect->getPixelMap();
-
-		switch(playback->getPlaybackState()) 
-		{
-		case eStreamPaused:
-			if( lhPos > 25 && lhPos < 75 )
-			{
-				if(checkPressTime(startHover))
-				{
-					playback->resumePlayback();
-					startHover = 0;
-				}
-			}
-			break;
-		case eSteamUninitialised:
-			if( lhPos > 25 && lhPos < 75 )
-			{
-				if(checkPressTime(startHover))
-				{
-					playback->startPlayback();
-					startHover = 0;
-				}
-			}
-			break;
-		case eStreamPlaying:
-			if( lhPos > 25 && lhPos < 75 )
-			{
-				if(checkPressTime(startHover))
-				{
-					playback->pausePlayback();
-					startHover = 0;
-				}
-			}
-			y = rhPos - prevPos;
-
-			if(!decY)
-			{
-				if(y < -1)
-				{
-					decY = true;
-					now = SDL_GetTicks();
-					interval[count] = now - prev;
-					prev = now;
-					//printf("Direction changed to 1. Y is decreasing(upscreen), time interval %i\n", interval[count]);
-					count++;
-
-					if(count > TIME_SAMPLES-1)
-					{
-						for(i=0;i<count;i++)
-						{
-							if(i == 0)
-							{
-								min = 0;
-								max = 0;
-							} 
-							else
-							{
-								if(interval[i] > interval[max])
-								{
-									max = count;
-								}
-								if(interval[i] < interval[min])
-								{
-									min = count;
-								}
-							}
-						}
-
-						for(i=0;i<count;i++)
-						{
-							if(i != max && i != min)
-							{
-								sum += interval[i];
-							}
-						}
-
-						sum /= TIME_SAMPLES-2;
-
-						if(((sum > previnterval+TEMPO_THRESHOLD) || (sum < previnterval-TEMPO_THRESHOLD)) && sum > 0)
-						{
-							playback->setPlaybackRate(sum);
-						}
-						count =0;
-						bpm = (1000/(float)sum) * 60;
-						previnterval = sum;
-						sum =0;
-					}
-				}
-			}
-			else
-			{
-				if(y > 1)
-				{
-					decY = false;
-					now = SDL_GetTicks();
-					interval[count] = now - prev;
-					prev = now;
-					//printf("Direction changed to 1. Y is decreasing(upscreen), time interval %i\n", interval[count]);
-					count++;
-
-					if(count > TIME_SAMPLES-1)
-					{
-						for(i=0;i<count;i++)
-						{
-							if(i == 0)
-							{
-								min = 0;
-								max = 0;
-							} 
-							else
-							{
-								if(interval[i] > interval[max])
-								{
-									max = count;
-								}
-								if(interval[i] < interval[min])
-								{
-									min = count;
-								}
-							}
-						}
-
-						for(i=0;i<count;i++)
-						{
-							if(i != max && i != min)
-							{
-								sum += interval[i];
-							}
-						}
-
-						sum /= TIME_SAMPLES-2;
-
-						if(((sum > previnterval+TEMPO_THRESHOLD) || (sum < previnterval-TEMPO_THRESHOLD)) && sum > 0)
-						{
-							playback->setPlaybackRate(sum);
-						}
-						count =0;
-						bpm = (1000/(float)sum) * 60;
-						previnterval = sum;
-						sum =0;
-					}
-				}
-			} 
-			prevPos = rhPos;
-			break;
-			
-		}
-		*/
-		
-		/*if(!(pixels.empty()))
-		{
-			IplImage image = pixels;
-			gui->drawSurfaceFromMatrix(image);
-			tempo = boost::lexical_cast<std::string>(bpm);
-			gui->drawTempoString(tempo);
-			gui->displayFrame();
-			printf("Current pos: %f\r", rhPos);
-		}
-		else
-		{
-			printf("\n\nEmpty pixel frame\n\n");
-		}*/
-
-		//gui->displayFrame();
-	//}
 
 	kinect->run();
 
-	delete gui;
-	delete kinect;
 	delete playback;
+	delete gui;
+	delete monitor;
+	delete kinect;
 
 	return 0;
 }
@@ -299,14 +115,4 @@ string chooseFile()
 	{
 		return "Number not listed";
 	}
-}
-
-bool checkPressTime(Uint32 &startTime)
-{
-	if(startTime == 0)
-		startTime = SDL_GetTicks();
-	else if((SDL_GetTicks() - startTime) > HOVER_TIME)
-		return true;
-
-	return false;
 }

@@ -23,8 +23,9 @@ public:
 	~SongPlayback();
 
 	int initialize();
-	void setPlaybackRate(int&);
+	void setPlaybackRate(unsigned int&);
 	void setLowpassCutoff(float&);
+	void setHighpassCutoff(float&);
 	void startPlayback();
 	void pausePlayback();
 	void resumePlayback();
@@ -35,7 +36,7 @@ private:
 	FMOD::System *system_;
 	FMOD::Channel *channel_;
 	FMOD::Sound *stream1_;
-	FMOD::DSP *pitch_, *lowpass_;
+	FMOD::DSP *pitch_, *lowpass_, *highpass_;
 
 	unsigned int version_;
 	float defreq_, spfreq_, pit_;

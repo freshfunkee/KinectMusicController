@@ -10,16 +10,12 @@ SongPlayback::SongPlayback(Song *song)
 
 SongPlayback::~SongPlayback()
 {
-	printf("\nSongPlayBack destructor");
 	result_ = stream1_->release();
 	errchk(result_);
-	printf("\nStream");
 	result_ = system_->close();
 	errchk(result_);
-	printf("\nSystem");
 	result_ = system_->release();
 	errchk(result_);
-	printf("\nSystem");
 }
 
 int SongPlayback::initialize()
@@ -45,13 +41,16 @@ int SongPlayback::initialize()
 	result_ = system_->createDSPByType(FMOD_DSP_TYPE_LOWPASS, &lowpass_);
 	errchk(result_);
 
+	result_ = system_->createDSPByType(FMOD_DSP_TYPE_HIGHPASS, &highpass_);
+	errchk(result_);
+
 	result_ = system_->createStream(path_.c_str(), FMOD_HARDWARE | FMOD_LOOP_NORMAL| FMOD_2D, 0, &stream1_);
 	errchk(result_);
 
 	return 0;
 }
 
-void SongPlayback::setPlaybackRate(int& sum)
+void SongPlayback::setPlaybackRate(unsigned int& sum)
 {
 	spfreq_ = defreq_ + (defreq_ * (float)((mspb - (float)sum)/mspb));
 
@@ -67,12 +66,24 @@ void SongPlayback::setPlaybackRate(int& sum)
 	result_ = system_->update();
 	errchk(result_);
 
-	printf("Current Freq: %f\n", spfreq_);
+	//printf("Current Freq: %f\n", spfreq_);
 }
 
 void SongPlayback::setLowpassCutoff(float &cutoff)
 {
 	result_ = lowpass_->setParameter(FMOD_DSP_LOWPASS_CUTOFF, cutoff);
+	errchk(result_);
+
+	result_ = system_->update();
+	errchk(result_);
+}
+
+void SongPlayback::setHighpassCutoff(float &cutoff)
+{
+	result_ = highpass_->setParameter(FMOD_DSP_HIGHPASS_CUTOFF, cutoff);
+	errchk(result_);
+
+	result_ = system_->update();
 	errchk(result_);
 }
 
@@ -92,10 +103,16 @@ void SongPlayback::startPlayback()
 	result_ = lowpass_->setParameter(FMOD_DSP_LOWPASS_CUTOFF, 20000.0);
 	errchk(result_);
 
+	result_ = highpass_->setParameter(FMOD_DSP_HIGHPASS_CUTOFF, 20.0);
+	errchk(result_);
+
 	result_ = system_->addDSP(pitch_,0);
 	errchk(result_);
 
 	result_ = system_->addDSP(lowpass_,0);
+	errchk(result_);
+
+	result_ = system_->addDSP(highpass_,0);
 	errchk(result_);
 
 	result_ = pitch_->setActive(active_);

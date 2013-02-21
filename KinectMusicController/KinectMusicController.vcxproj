@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HandMonitor.cpp" />
     <ClCompile Include="KinectController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Song.cpp" />
@@ -92,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HandMonitor.h" />
     <ClInclude Include="KinectController.h" />
     <ClInclude Include="Song.h" />
     <ClInclude Include="SongPlayback.h" />
