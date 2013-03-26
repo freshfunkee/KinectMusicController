@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <cstdlib>
+#include <Windows.h>
 
 #include <fmod\fmod.hpp>
 #include <fmod\fmod_errors.h>
@@ -23,20 +24,49 @@ public:
 	~SongPlayback();
 
 	int initialize();
+
+	void generateEcho(int);
+
 	void setPlaybackRate(unsigned int&);
 	void setLowpassCutoff(float&);
 	void setHighpassCutoff(float&);
+	void setFlangeActive(bool);
+	void setTremoloActive(bool);
+	void setFlangeDepth(float&);
+	void setTremoloRate(float&);
+
 	void startPlayback();
 	void pausePlayback();
 	void resumePlayback();
 	void setPlaybackState(const StreamState&);
 	StreamState getPlaybackState() { return streamState_; }
 
+	static void EchoShortThreadEntry(void *pThis)
+	{
+		SongPlayback *playback = (SongPlayback*) pThis;
+
+		playback->generateEcho(0);
+	}
+
+	static void EchoMedThreadEntry(void *pThis)
+	{
+		SongPlayback *playback = (SongPlayback*) pThis;
+
+		playback->generateEcho(1);
+	}
+
+	static void EchoLongThreadEntry(void *pThis)
+	{
+		SongPlayback *playback = (SongPlayback*) pThis;
+
+		playback->generateEcho(2);
+	}
+
 private:
 	FMOD::System *system_;
 	FMOD::Channel *channel_;
 	FMOD::Sound *stream1_;
-	FMOD::DSP *pitch_, *lowpass_, *highpass_;
+	FMOD::DSP *pitch_, *lowpass_, *highpass_, *echo_, *flange_, *tremolo_;
 
 	unsigned int version_;
 	float defreq_, spfreq_, pit_;

@@ -15,6 +15,16 @@ Gui::Gui()
 
 	highpass_ = 200;
 	lowpass_ = 600;
+
+	flangeDepth_ = 402;
+	tremoloRate_ = 402;
+
+	echoStates_ = new bool[3];
+
+	for(int i=0; i<3; i++)
+	{
+		echoStates_[i] = false;
+	}
 }
 
 Gui::~Gui()
@@ -26,6 +36,8 @@ Gui::~Gui()
 	TTF_CloseFont(font_);
 	TTF_Quit();
 	SDL_Quit();
+
+	delete [] echoStates_;
 }
 
 void Gui::initialize()
@@ -43,9 +55,24 @@ void Gui::displayFilter()
 	guiState_ = eGuiFilter;
 }
 
+void Gui::displayEcho()
+{
+	guiState_ = eGuiEcho;
+}
+
 void Gui::displayTempo()
 {
 	guiState_ = eGuiTempo;
+}
+
+void Gui::displayFlange()
+{
+	guiState_ = eGuiFlange;
+}
+
+void Gui::displayTremolo()
+{
+	guiState_ = eGuiTremolo;
 }
 
 void Gui::displayFrame(long **skelMatrix)
@@ -61,10 +88,10 @@ void Gui::displayFrame(long **skelMatrix)
     }
 
 	guiSurface_ = SDL_CreateRGBSurface(SDL_HWSURFACE, GUI_SCREEN_SIZE_X, GUI_SCREEN_SIZE_Y, 16, 0, 0, 0, 0);
-	SDL_FillRect( guiSurface_, NULL, 0x93C47D00);
+	SDL_FillRect( guiSurface_, NULL, SDL_MapRGB(guiSurface_->format,204,204,204) );
 
 	skelSurface_ = SDL_CreateRGBSurface(SDL_HWSURFACE, GUI_CAMERA_SIZE_X, GUI_CAMERA_SIZE_Y, 16, 0, 0, 0, 0);
-	SDL_FillRect( skelSurface_, NULL, 0x93C47D00);
+	SDL_FillRect( skelSurface_, NULL, SDL_MapRGB(guiSurface_->format,204,204,204) );
 	
 	for(int i=0;i<20;i++)
 	{
@@ -164,6 +191,7 @@ void Gui::drawGui()
 	case eGuiTempo:
 		break;
 	case eGuiFilter:
+		{
 		SDL_Surface *cutoffSurface = IMG_Load("button_inactive.png");
 		SDL_Rect lowLocation = { lowpass_-25, 180, 0, 0 };
 		SDL_Rect highLocation = { highpass_-25, 180, 0, 0 };
@@ -201,6 +229,75 @@ void Gui::drawGui()
 		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationLowpass);
 
 		SDL_FreeSurface(textSurface_);
+		}
+		break;
+	case eGuiEcho:
+		{
+		SDL_Surface *echoRectSurface;
+		
+		if(echoStates_[0])
+		{
+			echoRectSurface = IMG_Load("echo_rect_active.png");
+		}
+		else
+		{
+			echoRectSurface = IMG_Load("echo_rect_inactive.png");
+		}
+
+		SDL_Rect echoRectLocation1 = { 160, 75, 0, 0 };
+		SDL_BlitSurface(echoRectSurface, NULL, guiSurface_, &echoRectLocation1);
+		SDL_FreeSurface(echoRectSurface);
+
+		if(echoStates_[1])
+		{
+			echoRectSurface = IMG_Load("echo_rect_active.png");
+		}
+		else
+		{
+			echoRectSurface = IMG_Load("echo_rect_inactive.png");
+		}
+		SDL_Rect echoRectLocation2 = { 160, 196, 0, 0 };
+		SDL_BlitSurface(echoRectSurface, NULL, guiSurface_, &echoRectLocation2);
+		SDL_FreeSurface(echoRectSurface);
+
+		if(echoStates_[2])
+		{
+			echoRectSurface = IMG_Load("echo_rect_active.png");
+		}
+		else
+		{
+			echoRectSurface = IMG_Load("echo_rect_inactive.png");
+		}
+		SDL_Rect echoRectLocation3 = { 160, 317, 0, 0 };
+		SDL_BlitSurface(echoRectSurface, NULL, guiSurface_, &echoRectLocation3);
+		SDL_FreeSurface(echoRectSurface);
+		}
+		break;
+	case eGuiFlange:
+		{
+		SDL_Surface *flangeLineSurface = IMG_Load("flange_depth_line.png");
+		SDL_Rect flangeLineLocation = { 450, 125, 0, 0 };
+		SDL_BlitSurface(flangeLineSurface, NULL, guiSurface_, &flangeLineLocation);
+		SDL_FreeSurface(flangeLineSurface);
+
+		SDL_Surface *flangeControlSurface = IMG_Load("control_button_active.png");
+		SDL_Rect flangeControlLocation = { 438, flangeDepth_, 0, 0 };
+		SDL_BlitSurface(flangeControlSurface, NULL, guiSurface_, &flangeControlLocation);
+		SDL_FreeSurface(flangeControlSurface);
+		}
+		break;
+	case eGuiTremolo:
+		{
+		SDL_Surface *flangeLineSurface = IMG_Load("flange_depth_line.png");
+		SDL_Rect flangeLineLocation = { 450, 125, 0, 0 };
+		SDL_BlitSurface(flangeLineSurface, NULL, guiSurface_, &flangeLineLocation);
+		SDL_FreeSurface(flangeLineSurface);
+
+		SDL_Surface *flangeControlSurface = IMG_Load("control_button_active.png");
+		SDL_Rect flangeControlLocation = { 438, tremoloRate_, 0, 0 };
+		SDL_BlitSurface(flangeControlSurface, NULL, guiSurface_, &flangeControlLocation);
+		SDL_FreeSurface(flangeControlSurface);
+		}
 		break;
 	}
 
@@ -237,4 +334,73 @@ void Gui::setLowpass(long &cutoff)
 {
 	lowpass_ = cutoff;
 }
+
+void Gui::setEchoState(int index, bool state)
+{
+	echoStates_[index] = state;
+}
+
+bool Gui::checkEchoStates()
+{
+	for(int i=0; i<3; i++)
+	{
+		if(echoStates_[i])
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Gui::setFlangeDepth(long &depth)
+{
+	flangeDepth_ = depth + GUI_SCREEN_OFFSET_Y;
+}
+
+void Gui::setTremoloRate(long &rate)
+{
+	tremoloRate_ = rate + GUI_SCREEN_OFFSET_Y;
+}
+
+//void Gui::initGuiButtons()
+//{
+//	/*for(int i=0;i<GUI_BUTTON_COUNT;i++)
+//    {
+//
+//        if(i == GUI_BUTTON_PAUSE_INDEX)
+//		{
+//			buttonStrings_[i][0] = "pause_button_idle.png";
+//			buttonStrings_[i][1] = "pause_button_hover.png";
+//			buttonStrings_[i][2] = "pause_button_hover2.png";
+//			buttonStrings_[i][3] = "pause_button_active.png";
+//			buttonStrings_[i][5] = "pause_button_inactive.png";
+//
+//			guiButtons_[i]->initButton( GUI_BUTTON_PAUSE_POS_X,  GUI_BUTTON_PAUSE_POS_Y, buttonStrings_[i] );
+//		}
+//		else
+//		{
+//			buttonStrings_[i][0] = "button_idle.png";
+//			buttonStrings_[i][1] = "button_hover.png";
+//			buttonStrings_[i][2] = "button_hover2.png";
+//			buttonStrings_[i][3] = "button_active.png";
+//			buttonStrings_[i][5] = "button_inactive.png";
+//
+//			switch(i) {
+//			case 1:
+//				guiButtons_[i]->initButton( GUI_BUTTON_FILTER_POS_X,  GUI_BUTTON_FILTER_POS_Y, buttonStrings_[i] );
+//				break;
+//			case 2:
+//				guiButtons_[i]->initButton( GUI_BUTTON_2_POS_X,  GUI_BUTTON_2_POS_Y, buttonStrings_[i] );
+//				break;
+//			case 3:
+//				guiButtons_[i]->initButton( GUI_BUTTON_3_POS_X,  GUI_BUTTON_3_POS_Y, buttonStrings_[i] );
+//				break;
+//			case 4:
+//				guiButtons_[i]->initButton( GUI_BUTTON_4_POS_X,  GUI_BUTTON_4_POS_Y, buttonStrings_[i] );
+//				break;
+//			}
+//		}
+//    }*/
+//}
 

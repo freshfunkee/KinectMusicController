@@ -2,6 +2,7 @@
 #define GUI_H
 
 #include <string>
+
 #include <SDL\SDL.h>
 #include <SDL\SDL_ttf.h>
 #include <SDL\SDL_image.h>
@@ -42,17 +43,20 @@
 #define GUI_STRING_TEMPO_POS_Y	25
 
 typedef enum {
+	eGuiTempo,
+	eGuiFilter,
+	eGuiEcho,
+	eGuiFlange,
+	eGuiTremolo
+} GuiState;
+
+typedef enum {
 	eButtonIdle,
 	eButtonHover,
 	eButtonHover1000,
 	eButtonActive,
 	eButtonInactive
 } ButtonState;
-
-typedef enum {
-	eGuiTempo,
-	eGuiFilter
-} GuiState;
 
 class Gui
 {
@@ -61,11 +65,20 @@ public:
 	~Gui();
 
 	void initialize();
+
 	void displayFrame(long **);
 	void displayFilter();
+	void displayEcho();
+	void displayFlange();
+	void displayTremolo();
 	void displayTempo();
+
 	void setLowpass(long&);
 	void setHighpass(long&);
+	void setEchoState(int, bool);
+	bool checkEchoStates();
+	void setFlangeDepth(long&);
+	void setTremoloRate(long&);
 	void setTempoString(const long&);
 	void setButtonStates(ButtonState*);
 	GuiState getGuiState() { return guiState_; }
@@ -77,11 +90,13 @@ private:
 	SDL_Surface *textSurface_, *pauseSurface_, *dspSurface_, filterSurface_;
 
 	std::string tempo_, filter_;
-	long lowpass_, highpass_;
+	long lowpass_, highpass_, flangeDepth_, tremoloRate_;
+	bool *echoStates_;
 
 	ButtonState *buttonStates_;
 	GuiState guiState_;
 	void drawGui();
+	//void initGuiButtons();
 };
 
 #endif

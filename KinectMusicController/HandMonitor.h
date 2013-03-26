@@ -17,11 +17,14 @@ private:
 	void checkStates();
 	void setTempoParams();
 	void setFilterParams();
+	void setEchoParams();
+	void setFlangeParams();
+	void setTremoloParams();
 	void addTempoMeasure();
 	void calcTempo();
 
 	long rhX_,rhY_,rhYprev_,rhYrel_,rhZ_,lhX_,lhY_,lhZ_, initialDepth_;
-	unsigned int startHover_, curTime_, prevTime_, sumMeasurePrev_, *measures_;
+	unsigned int *startHover_, curTime_, prevTime_, sumMeasurePrev_, *measures_;
 	short measureCount_;
 	bool decY_;
 	

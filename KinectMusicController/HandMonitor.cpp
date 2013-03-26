@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <process.h>
 
 #include "Gui.h"
 #include "SongPlayback.h"
@@ -38,7 +39,8 @@ HandMonitor::HandMonitor(SongPlayback *playback, Gui *gui)
 	curTime_ = 0;
 	prevTime_ = 0; 
 	sumMeasurePrev_ = 0;
-	startHover_ = 0;
+	startHover_ = new unsigned int[5];
+
 
 	measures_ = new unsigned int[TEMPO_SAMPLES];
 	for(int i=0;i<TEMPO_SAMPLES;i++)
@@ -53,6 +55,7 @@ HandMonitor::HandMonitor(SongPlayback *playback, Gui *gui)
 	for(int i=0;i<5;i++)
 	{
 		buttonStates_[i] = eButtonIdle;
+		startHover_[i] = 0;
 	}
 }
 
@@ -60,6 +63,7 @@ HandMonitor::~HandMonitor()
 {
 	delete [] measures_;
 	delete [] buttonStates_;
+	delete [] startHover_;
 }
 
 void HandMonitor::monitor(long **skelMatrix)
@@ -93,13 +97,14 @@ void HandMonitor::checkStates()
 				lhX_ > GUI_BUTTON_PAUSE_POS_X && 
 				lhX_ < (GUI_BUTTON_PAUSE_POS_X + GUI_BUTTON_SIZE) )
 		{
-			if(checkTimeout(startHover_,GUI_BUTTON_PAUSE_INDEX))
+			if(checkTimeout(startHover_[0],GUI_BUTTON_PAUSE_INDEX))
 			{
 				playback_->resumePlayback();
 			}
 		}
 		else
 		{
+			startHover_[0] = 0;
 			buttonStates_[GUI_BUTTON_PAUSE_INDEX] = eButtonActive;
 		}
 		break;
@@ -109,13 +114,14 @@ void HandMonitor::checkStates()
 				lhX_ > GUI_BUTTON_PAUSE_POS_X && 
 				lhX_ < (GUI_BUTTON_PAUSE_POS_X + GUI_BUTTON_SIZE) )
 		{
-			if(checkTimeout(startHover_,GUI_BUTTON_PAUSE_INDEX))
+			if(checkTimeout(startHover_[0],GUI_BUTTON_PAUSE_INDEX))
 			{
 				playback_->startPlayback();
 			}
 		}
 		else
 		{
+			startHover_[0] = 0;
 			buttonStates_[GUI_BUTTON_PAUSE_INDEX] = eButtonActive;
 		}
 		break;
@@ -125,13 +131,14 @@ void HandMonitor::checkStates()
 				lhX_ > GUI_BUTTON_PAUSE_POS_X && 
 				lhX_ < (GUI_BUTTON_PAUSE_POS_X + GUI_BUTTON_SIZE) )
 		{
-			if(checkTimeout(startHover_,GUI_BUTTON_PAUSE_INDEX))
+			if(checkTimeout(startHover_[0],GUI_BUTTON_PAUSE_INDEX))
 			{
 				playback_->pausePlayback();
 			}
 		}
 		else
 		{
+			startHover_[0] = 0;
 			buttonStates_[GUI_BUTTON_PAUSE_INDEX] = eButtonIdle;
 		}
 		break;
@@ -145,9 +152,41 @@ void HandMonitor::checkStates()
 				lhX_ > GUI_BUTTON_FILTER_POS_X && 
 				lhX_ < (GUI_BUTTON_FILTER_POS_X + GUI_BUTTON_SIZE) )
 		{
-			if(checkTimeout(startHover_,GUI_BUTTON_FILTER_INDEX))
+			if(checkTimeout(startHover_[1],GUI_BUTTON_FILTER_INDEX))
 			{
 				gui_->displayFilter();
+			}
+		}
+		else if( lhY_ > (GUI_BUTTON_2_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_2_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_2_POS_X && 
+				lhX_ < (GUI_BUTTON_2_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[2],GUI_BUTTON_2_INDEX))
+			{
+				gui_->displayEcho();
+			}
+		}
+		else if( lhY_ > (GUI_BUTTON_3_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_3_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_3_POS_X && 
+				lhX_ < (GUI_BUTTON_3_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[3],GUI_BUTTON_3_INDEX))
+			{
+				playback_->setFlangeActive(true);
+				gui_->displayFlange();
+			}
+		}
+		else if( lhY_ > (GUI_BUTTON_4_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_4_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_4_POS_X && 
+				lhX_ < (GUI_BUTTON_4_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[4],GUI_BUTTON_4_INDEX))
+			{
+				playback_->setTremoloActive(true);
+				gui_->displayTremolo();
 			}
 		}
 		else
@@ -156,6 +195,8 @@ void HandMonitor::checkStates()
 			buttonStates_[GUI_BUTTON_2_INDEX] = eButtonIdle;
 			buttonStates_[GUI_BUTTON_3_INDEX] = eButtonIdle;
 			buttonStates_[GUI_BUTTON_4_INDEX] = eButtonIdle;
+			startHover_[1] = 0;
+			startHover_[2] = 0;
 		}
 
 		setTempoParams();
@@ -166,7 +207,7 @@ void HandMonitor::checkStates()
 				lhX_ > GUI_BUTTON_FILTER_POS_X && 
 				lhX_ < (GUI_BUTTON_FILTER_POS_X + GUI_BUTTON_SIZE) )
 		{
-			if(checkTimeout(startHover_,GUI_BUTTON_FILTER_INDEX))
+			if(checkTimeout(startHover_[1],GUI_BUTTON_FILTER_INDEX))
 			{
 				gui_->displayTempo();
 			}
@@ -177,11 +218,80 @@ void HandMonitor::checkStates()
 			buttonStates_[GUI_BUTTON_2_INDEX] = eButtonInactive;
 			buttonStates_[GUI_BUTTON_3_INDEX] = eButtonInactive;
 			buttonStates_[GUI_BUTTON_4_INDEX] = eButtonInactive;
+			startHover_[1] = 0;
 		}
 
 		setFilterParams();
 		break;
+	case eGuiEcho:
+		if( lhY_ > (GUI_BUTTON_2_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_2_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_2_POS_X && 
+				lhX_ < (GUI_BUTTON_2_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[2],GUI_BUTTON_2_INDEX))
+			{
+				gui_->displayTempo();
+			}
+		}
+		else
+		{
+			buttonStates_[GUI_BUTTON_FILTER_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_2_INDEX] = eButtonActive;
+			buttonStates_[GUI_BUTTON_3_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_4_INDEX] = eButtonInactive;
+			startHover_[2] = 0;
+		}
+
+		setEchoParams();
+		break;
+	case eGuiFlange:
+		if( lhY_ > (GUI_BUTTON_3_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_3_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_3_POS_X && 
+				lhX_ < (GUI_BUTTON_3_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[3],GUI_BUTTON_3_INDEX))
+			{
+				playback_->setFlangeActive(false);
+				gui_->displayTempo();
+			}
+		}
+		else
+		{
+			buttonStates_[GUI_BUTTON_FILTER_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_2_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_3_INDEX] = eButtonActive;
+			buttonStates_[GUI_BUTTON_4_INDEX] = eButtonInactive;
+			startHover_[3] = 0;
+		}
+
+		setFlangeParams();
+		break;
+	case eGuiTremolo:
+		if( lhY_ > (GUI_BUTTON_4_POS_Y - GUI_SCREEN_OFFSET_Y) && 
+				lhY_ < ((GUI_BUTTON_4_POS_Y - GUI_SCREEN_OFFSET_Y) + GUI_BUTTON_SIZE) && 
+				lhX_ > GUI_BUTTON_4_POS_X && 
+				lhX_ < (GUI_BUTTON_4_POS_X + GUI_BUTTON_SIZE) )
+		{
+			if(checkTimeout(startHover_[4],GUI_BUTTON_4_INDEX))
+			{
+				playback_->setTremoloActive(false);
+				gui_->displayTempo();
+			}
+		}
+		else
+		{
+			buttonStates_[GUI_BUTTON_FILTER_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_2_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_3_INDEX] = eButtonInactive;
+			buttonStates_[GUI_BUTTON_4_INDEX] = eButtonActive;
+			startHover_[4] = 0;
+		}
+		setTremoloParams();
+		break;
 	}
+
 }
 
 void HandMonitor::setTempoParams()
@@ -265,8 +375,6 @@ void HandMonitor::calcTempo()
 
 void HandMonitor::setFilterParams()
 {
-	//TODO
-	//Get gui values and send it to sound engine
 	if((initialDepth_ - lhZ_) > 300)
 	{
 		if(lhX_ > 200 && lhX_ < 600)
@@ -325,7 +433,102 @@ void HandMonitor::setFilterParams()
 			printf("\r%.2f lowpass", cutoff);
 		}
 	}
-	
+}
+
+void HandMonitor::setEchoParams()
+{
+	if(lhY_ > 25 && lhY_ < 145 && rhY_ > 25 && rhY_ < 145)
+	{
+		if(rhX_ - lhX_ < 20)
+		{
+			if(!(gui_->checkEchoStates()))
+			{
+				_beginthread( SongPlayback::EchoShortThreadEntry, 0, (void*)playback_ );
+				gui_->setEchoState(0,true);
+			}
+		}
+	}
+	else if(lhY_ > 146 && lhY_ < 267 && rhY_ > 146 && rhY_ < 267)
+	{
+		if(rhX_ - lhX_ < 20)
+		{
+			if(!(gui_->checkEchoStates()))
+			{
+				_beginthread( SongPlayback::EchoMedThreadEntry, 0, (void*)playback_ );
+				gui_->setEchoState(1,true);
+			}
+		}
+	}
+	else if(lhY_ > 268 && lhY_ < 389 && rhY_ > 268 && rhY_ < 389)
+	{
+		if(rhX_ - lhX_ < 20)
+		{
+			if(!(gui_->checkEchoStates()))
+			{
+				_beginthread( SongPlayback::EchoLongThreadEntry, 0, (void*)playback_ );
+				gui_->setEchoState(2,true);
+			}
+		}
+	}
+
+	if(rhX_ - lhX_ > 100)
+	{
+		gui_->setEchoState(0,false);
+		gui_->setEchoState(1,false);
+		gui_->setEchoState(2,false);
+	}
+}
+
+void HandMonitor::setFlangeParams()
+{
+	if(rhY_ > 75 && rhY_ < 352)
+	{
+		float depth = (277-(((float)rhY_ - 75)*0.0036))/277;
+
+		playback_->setFlangeDepth(depth);
+		gui_->setFlangeDepth(rhY_);
+	}
+	else if(rhY_ < 75)
+	{
+		long pos = 75;
+		float depth = 0;
+
+		playback_->setFlangeDepth(depth);
+		gui_->setFlangeDepth(pos);
+	}
+	else if(rhY_ > 352)
+	{
+		long pos = 352;
+		float depth = 1;
+
+		playback_->setFlangeDepth(depth);
+		gui_->setFlangeDepth(pos);
+	}
+}
+
+void HandMonitor::setTremoloParams()
+{
+	if(rhY_ > 75 && rhY_ < 352)
+	{
+		gui_->setTremoloRate(rhY_);
+		//TODO calculate graphics to sound engine conversion
+	}
+	else if(rhY_ < 75)
+	{
+		long pos = 75;
+		float rate = 0.1;
+
+		playback_->setTremoloRate(rate);
+		gui_->setTremoloRate(pos);
+	}
+	else if(rhY_ > 352)
+	{
+		long pos = 352;
+		float rate = 10;
+
+		playback_->setTremoloRate(rate);
+		gui_->setTremoloRate(pos);
+	}
 }
 
 
