@@ -7,8 +7,12 @@ Gui::Gui()
 	screen_ = NULL;
 	skelSurface_ = NULL;
 	guiSurface_ = NULL;
+
 	tempo_ = "Tempo: ";
 	filter_ = "Filter";
+	echostr_ = "Echo";
+	flangestr_ = "Flange";
+	tremolostr_ = "Tremolo";
 
 	buttonStates_ = NULL;
 	guiState_ = eGuiTempo;
@@ -18,6 +22,9 @@ Gui::Gui()
 
 	flangeDepth_ = 402;
 	tremoloRate_ = 402;
+
+	curTimeMs_ = 0;
+	beatCount_ = 1;
 
 	echoStates_ = new bool[3];
 
@@ -269,8 +276,39 @@ void Gui::drawGui()
 			echoRectSurface = IMG_Load("echo_rect_inactive.png");
 		}
 		SDL_Rect echoRectLocation3 = { 160, 317, 0, 0 };
+
 		SDL_BlitSurface(echoRectSurface, NULL, guiSurface_, &echoRectLocation3);
 		SDL_FreeSurface(echoRectSurface);
+
+		SDL_Color foregroundColor = { 0, 0, 0 };
+
+		SDL_Rect textLocationEcho = { 70, 195, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, echostr_.c_str(),
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationEcho);
+
+		SDL_FreeSurface(textSurface_);
+
+		SDL_Rect textLocationFast = { 572, 136, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, "Fast",
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationFast);
+
+		SDL_FreeSurface(textSurface_);
+
+		SDL_Rect textLocationMed = { 572, 257, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, "Med",
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationMed);
+
+		SDL_FreeSurface(textSurface_);
+
+		SDL_Rect textLocationSlow = { 572, 378, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, "Slow",
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationSlow);
+
+		SDL_FreeSurface(textSurface_);
 		}
 		break;
 	case eGuiFlange:
@@ -284,19 +322,49 @@ void Gui::drawGui()
 		SDL_Rect flangeControlLocation = { 438, flangeDepth_, 0, 0 };
 		SDL_BlitSurface(flangeControlSurface, NULL, guiSurface_, &flangeControlLocation);
 		SDL_FreeSurface(flangeControlSurface);
+
+		SDL_Color foregroundColor = { 0, 0, 0 };
+		SDL_Rect textLocationFlange = { 70, 295, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, flangestr_.c_str(),
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationFlange);
+
+		SDL_FreeSurface(textSurface_);
+
+		SDL_Rect textLocationDepth = { 425, 110, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, "Depth",
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationDepth);
+
+		SDL_FreeSurface(textSurface_);
 		}
 		break;
 	case eGuiTremolo:
 		{
-		SDL_Surface *flangeLineSurface = IMG_Load("flange_depth_line.png");
-		SDL_Rect flangeLineLocation = { 450, 125, 0, 0 };
-		SDL_BlitSurface(flangeLineSurface, NULL, guiSurface_, &flangeLineLocation);
-		SDL_FreeSurface(flangeLineSurface);
+		SDL_Surface *tremoloLineSurface = IMG_Load("flange_depth_line.png");
+		SDL_Rect tremoloLineLocation = { 450, 125, 0, 0 };
+		SDL_BlitSurface(tremoloLineSurface, NULL, guiSurface_, &tremoloLineLocation);
+		SDL_FreeSurface(tremoloLineSurface);
 
-		SDL_Surface *flangeControlSurface = IMG_Load("control_button_active.png");
-		SDL_Rect flangeControlLocation = { 438, tremoloRate_, 0, 0 };
-		SDL_BlitSurface(flangeControlSurface, NULL, guiSurface_, &flangeControlLocation);
-		SDL_FreeSurface(flangeControlSurface);
+		SDL_Surface *tremoloControlSurface = IMG_Load("control_button_active.png");
+		SDL_Rect tremoloControlLocation = { 438, tremoloRate_, 0, 0 };
+		SDL_BlitSurface(tremoloControlSurface, NULL, guiSurface_, &tremoloControlLocation);
+		SDL_FreeSurface(tremoloControlSurface);
+
+		SDL_Color foregroundColor = { 0, 0, 0 };
+		SDL_Rect textLocationTremolo = { 110, 395, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, tremolostr_.c_str(),
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationTremolo);
+
+		SDL_FreeSurface(textSurface_);
+
+		SDL_Rect textLocationRate = { 428, 110, 0, 0 };
+		textSurface_ = TTF_RenderText_Blended(font2_, "Rate",
+			foregroundColor);
+		SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationRate);
+
+		SDL_FreeSurface(textSurface_);
 		}
 		break;
 	}
@@ -309,6 +377,39 @@ void Gui::drawGui()
 
 	SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation);
 	SDL_FreeSurface(textSurface_);
+
+	SDL_Surface *timelineSurface = IMG_Load("timeline.png");
+	SDL_Rect timelineLocation = { 35, 540, 0, 0 };
+	SDL_BlitSurface(timelineSurface, NULL, guiSurface_, &timelineLocation);
+	SDL_FreeSurface(timelineSurface);
+
+	SDL_Surface *cursorSurface = IMG_Load("cursor.png");
+	SDL_Rect cursorLocation = { currentTime_, 533, 0, 0 };
+	SDL_BlitSurface(cursorSurface, NULL, guiSurface_, &cursorLocation);
+	SDL_FreeSurface(cursorSurface);
+
+	SDL_Rect textLocationTime = { 280, 560, 0, 0 };
+	char curTime[20];
+
+	sprintf(curTime, "%02d:%02d:%02d", curTimeMs_/1000/60, curTimeMs_/1000%60, curTimeMs_/10%100 );
+	textSurface_ = TTF_RenderText_Blended(font2_, curTime,
+		foregroundColor);
+
+	SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocationTime);
+	SDL_FreeSurface(textSurface_);
+
+	SDL_Surface *counterBarSurface = IMG_Load("counter_bar.png");
+	SDL_Rect counterBarLocation = { 35, 15, 0, 0 };
+	SDL_BlitSurface(counterBarSurface, NULL, guiSurface_, &counterBarLocation);
+	SDL_FreeSurface(counterBarSurface);
+
+	SDL_Surface *counterLineSurface = IMG_Load("counter_line.png");
+	for(int i=0; i<beatCount_; i++)
+	{
+		SDL_Rect counterLineLocation = { 36+(i*26), 16, 0, 0 };
+		SDL_BlitSurface(counterLineSurface, NULL, guiSurface_, &counterLineLocation);
+	}
+	SDL_FreeSurface(counterLineSurface);
 }
 
 void Gui::setTempoString(const long &tempo)
@@ -363,6 +464,30 @@ void Gui::setTremoloRate(long &rate)
 	tremoloRate_ = rate + GUI_SCREEN_OFFSET_Y;
 }
 
+void Gui::setTimelineLength(unsigned int length)
+{
+	timelineFactor_ = 570.0 / (float)length;
+}
+
+void Gui::setCurrentTime(unsigned int time)
+{
+	curTimeMs_ = time;
+	currentTime_ = (timelineFactor_ * (float)time) + 28;
+	if(currentTime_ > 605)
+	{
+		currentTime_ = 605;
+	}
+}
+
+void Gui::incBeatCount()
+{
+	beatCount_++;
+}
+
+void Gui::zeroBeatCount()
+{
+	beatCount_ = 1;
+}
 //void Gui::initGuiButtons()
 //{
 //	/*for(int i=0;i<GUI_BUTTON_COUNT;i++)

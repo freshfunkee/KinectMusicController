@@ -27,6 +27,9 @@ public:
 
 	void generateEcho(int);
 
+	unsigned int getLength() { return songLength_; }
+	void getCurrentTime(unsigned int&);
+
 	void setPlaybackRate(unsigned int&);
 	void setLowpassCutoff(float&);
 	void setHighpassCutoff(float&);
@@ -68,7 +71,7 @@ private:
 	FMOD::Sound *stream1_;
 	FMOD::DSP *pitch_, *lowpass_, *highpass_, *echo_, *flange_, *tremolo_;
 
-	unsigned int version_;
+	unsigned int version_, songLength_;
 	float defreq_, spfreq_, pit_;
 	bool active_;
 	string path_;

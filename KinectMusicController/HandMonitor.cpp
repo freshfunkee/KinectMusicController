@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cmath>
 #include <process.h>
+#include <iostream>
 
 #include "Gui.h"
 #include "SongPlayback.h"
@@ -82,7 +83,7 @@ void HandMonitor::monitor(long **skelMatrix)
 	}
 
 	checkStates();
-
+	
 	gui_->setButtonStates(buttonStates_);
 	gui_->displayFrame(skelMatrix);
 }
@@ -141,6 +142,9 @@ void HandMonitor::checkStates()
 			startHover_[0] = 0;
 			buttonStates_[GUI_BUTTON_PAUSE_INDEX] = eButtonIdle;
 		}
+
+		playback_->getCurrentTime(playbackTime_);
+		gui_->setCurrentTime(playbackTime_);
 		break;
 	}
 
@@ -155,6 +159,9 @@ void HandMonitor::checkStates()
 			if(checkTimeout(startHover_[1],GUI_BUTTON_FILTER_INDEX))
 			{
 				gui_->displayFilter();
+
+				measureCount_ = 0;
+				gui_->zeroBeatCount();
 			}
 		}
 		else if( lhY_ > (GUI_BUTTON_2_POS_Y - GUI_SCREEN_OFFSET_Y) && 
@@ -165,6 +172,9 @@ void HandMonitor::checkStates()
 			if(checkTimeout(startHover_[2],GUI_BUTTON_2_INDEX))
 			{
 				gui_->displayEcho();
+
+				measureCount_ = 0;
+				gui_->zeroBeatCount();
 			}
 		}
 		else if( lhY_ > (GUI_BUTTON_3_POS_Y - GUI_SCREEN_OFFSET_Y) && 
@@ -176,6 +186,9 @@ void HandMonitor::checkStates()
 			{
 				playback_->setFlangeActive(true);
 				gui_->displayFlange();
+
+				measureCount_ = 0;
+				gui_->zeroBeatCount();
 			}
 		}
 		else if( lhY_ > (GUI_BUTTON_4_POS_Y - GUI_SCREEN_OFFSET_Y) && 
@@ -187,6 +200,9 @@ void HandMonitor::checkStates()
 			{
 				playback_->setTremoloActive(true);
 				gui_->displayTremolo();
+
+				measureCount_ = 0;
+				gui_->zeroBeatCount();
 			}
 		}
 		else
@@ -334,6 +350,7 @@ void HandMonitor::addTempoMeasure()
 	measures_[measureCount_] = curTime_ - prevTime_;
 	prevTime_ = curTime_;
 	measureCount_++;
+	gui_->incBeatCount();
 }
 
 void HandMonitor::calcTempo()
@@ -370,6 +387,7 @@ void HandMonitor::calcTempo()
 	}
 
 	measureCount_ = 0;
+	gui_->zeroBeatCount();
 	sumMeasurePrev_ = sumMeasure;
 }
 
@@ -483,7 +501,7 @@ void HandMonitor::setFlangeParams()
 {
 	if(rhY_ > 75 && rhY_ < 352)
 	{
-		float depth = (277-(((float)rhY_ - 75)*0.0036))/277;
+		float depth = ((float)rhY_ - 75)*0.0036;
 
 		playback_->setFlangeDepth(depth);
 		gui_->setFlangeDepth(rhY_);
@@ -510,8 +528,11 @@ void HandMonitor::setTremoloParams()
 {
 	if(rhY_ > 75 && rhY_ < 352)
 	{
+		float rate = ((float)rhY_ - 75)*0.036;
+
+		std::cout << "Rate: " << rate << "\r" << std::endl;
+		playback_->setTremoloRate(rate);
 		gui_->setTremoloRate(rhY_);
-		//TODO calculate graphics to sound engine conversion
 	}
 	else if(rhY_ < 75)
 	{

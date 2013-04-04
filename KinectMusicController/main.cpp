@@ -55,6 +55,8 @@ int main()
 	kinect->initialize();
 	playback->initialize();
 
+	gui->setTimelineLength(playback->getLength());
+
 	delete(trackSelection);
 
 	printf("\n\n");

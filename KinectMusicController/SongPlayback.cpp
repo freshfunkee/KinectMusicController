@@ -56,6 +56,9 @@ int SongPlayback::initialize()
 	result_ = system_->createStream(path_.c_str(), FMOD_HARDWARE | FMOD_LOOP_NORMAL| FMOD_2D, 0, &stream1_);
 	errchk(result_);
 
+	result_ = stream1_->getLength(&songLength_, FMOD_TIMEUNIT_MS);
+	errchk(result_);
+
 	return 0;
 }
 
@@ -97,6 +100,12 @@ void SongPlayback::generateEcho(int echoType)
 		channel_->setVolume(i);
 		Sleep(50);
 	}
+}
+
+void SongPlayback::getCurrentTime(unsigned int &time)
+{
+	result_ = channel_->getPosition(&time, FMOD_TIMEUNIT_MS);
+	errchk(result_);
 }
 
 void SongPlayback::setPlaybackRate(unsigned int& sum)

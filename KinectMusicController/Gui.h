@@ -81,6 +81,12 @@ public:
 	void setTremoloRate(long&);
 	void setTempoString(const long&);
 	void setButtonStates(ButtonState*);
+	void setTimelineLength(unsigned int);
+	void setCurrentTime(unsigned int);
+	
+	void incBeatCount();
+	void zeroBeatCount();
+
 	GuiState getGuiState() { return guiState_; }
 	void run();
 
@@ -89,9 +95,11 @@ private:
 	TTF_Font *font_, *font2_;
 	SDL_Surface *textSurface_, *pauseSurface_, *dspSurface_, filterSurface_;
 
-	std::string tempo_, filter_;
+	unsigned int curTimeMs_, beatCount_;
+	std::string tempo_, filter_, echostr_, flangestr_, tremolostr_;
 	long lowpass_, highpass_, flangeDepth_, tremoloRate_;
 	bool *echoStates_;
+	float timelineFactor_, currentTime_;
 
 	ButtonState *buttonStates_;
 	GuiState guiState_;
