@@ -6,6 +6,8 @@
 #include <SDL\SDL.h>
 #include <SDL\SDL_ttf.h>
 #include <SDL\SDL_image.h>
+#include "Loop.h"
+
 #undef main
 
 #define GUI_SCREEN_SIZE_X		640
@@ -83,6 +85,7 @@ public:
 	void setButtonStates(ButtonState*);
 	void setTimelineLength(unsigned int);
 	void setCurrentTime(unsigned int);
+	void setLoop(const Loop&);
 	
 	void incBeatCount();
 	void zeroBeatCount();
@@ -91,7 +94,7 @@ public:
 	void run();
 
 private:
-	SDL_Surface *screen_, *skelSurface_, *guiSurface_, *text_, *jointImg_;
+	SDL_Surface *screen_, *skelSurface_, *guiSurface_, *text_, *jointImg_, *jointImgHand_;
 	TTF_Font *font_, *font2_;
 	SDL_Surface *textSurface_, *pauseSurface_, *dspSurface_, filterSurface_;
 
@@ -100,6 +103,7 @@ private:
 	long lowpass_, highpass_, flangeDepth_, tremoloRate_;
 	bool *echoStates_;
 	float timelineFactor_, currentTime_;
+	Loop loop_;
 
 	ButtonState *buttonStates_;
 	GuiState guiState_;

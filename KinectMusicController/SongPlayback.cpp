@@ -1,10 +1,13 @@
 #include "SongPlayback.h"
 
+#include <iostream>
 SongPlayback::SongPlayback(Song *song)
 {
 	path_ = song->getPath();
 	mspb = 1000/(song->getBpm()/60);
+	loopQ_ = song->getLoop();
 
+	prevEchoGen_ = 0;
 	streamState_ = eSteamUninitialised;
 }
 
@@ -59,6 +62,8 @@ int SongPlayback::initialize()
 	result_ = stream1_->getLength(&songLength_, FMOD_TIMEUNIT_MS);
 	errchk(result_);
 
+	setLoop();
+
 	return 0;
 }
 
@@ -70,18 +75,21 @@ void SongPlayback::generateEcho(int echoType)
 		echo_->setParameter(FMOD_DSP_ECHO_DELAY, 300);
 		
 		Sleep(350);
+		prevEchoGen_ = 1;
 		break;
 	case 1:
 		echo_->setParameter(FMOD_DSP_ECHO_DECAYRATIO, 0.5);
 		echo_->setParameter(FMOD_DSP_ECHO_DELAY, 500);
 		
 		Sleep(500);
+		prevEchoGen_ = 2;
 		break;
 	case 2:
 		echo_->setParameter(FMOD_DSP_ECHO_DECAYRATIO, 0.3);
 		echo_->setParameter(FMOD_DSP_ECHO_DELAY, 800);
 		
 		Sleep(850);
+		prevEchoGen_ = 3;
 		break;
 	}
 
@@ -106,6 +114,78 @@ void SongPlayback::getCurrentTime(unsigned int &time)
 {
 	result_ = channel_->getPosition(&time, FMOD_TIMEUNIT_MS);
 	errchk(result_);
+
+	//if(time < 100)
+	//	startLoopOffset_ = loop_.start;
+
+	//time += startLoopOffset_;
+	////if(time+loop_.start != 0)
+	////	time += loop_.start;
+}
+
+Loop SongPlayback::getCurrentLoop()
+{
+	return loop_;
+}
+
+void SongPlayback::checkLoop()
+{
+	switch(loop_.effect) {
+	case 0:
+	{
+		float val = 0;
+		
+		lowpass_->getParameter(FMOD_DSP_LOWPASS_CUTOFF,&val,0,0);
+		if(val < loop_.threshold )
+		{
+			setLoop();
+		}
+		break;
+	}
+	case 1:
+	{
+		float val = 0;
+		
+		highpass_->getParameter(FMOD_DSP_HIGHPASS_CUTOFF,&val,0,0);
+		if(val > loop_.threshold )
+		{
+			setLoop();
+		}
+		break;
+	}
+	case 2:
+	{
+		if(prevEchoGen_ == loop_.threshold )
+		{
+			setLoop();
+		}
+		break;
+	}
+	case 3:
+	{
+		float val = 0;
+		
+		flange_->getParameter(FMOD_DSP_FLANGE_RATE,&val,0,0);
+		if(val > loop_.threshold )
+		{
+			setLoop();
+		}
+		break;
+	}
+	case 4:
+	{
+		float val = 0;
+		
+		tremolo_->getParameter(FMOD_DSP_TREMOLO_FREQUENCY,&val,0,0);
+		if(val > loop_.threshold )
+		{
+			setLoop();
+		}
+		break;
+	}
+	case 5:
+		break;
+	}
 }
 
 void SongPlayback::setPlaybackRate(unsigned int& sum)
@@ -215,8 +295,6 @@ void SongPlayback::startPlayback()
 	result_ = channel_->getFrequency(&defreq_);
 	errchk(result_);
 
-	printf("\n Default freq is: %.2f\n\n", defreq_);
-
 	result_ = pitch_->setParameter(FMOD_DSP_PITCHSHIFT_FFTSIZE, 4096);
 	errchk(result_);
 
@@ -279,4 +357,31 @@ void SongPlayback::resumePlayback()
 	errchk(result_);
 
 	streamState_ = eStreamPlaying;
+}
+
+void SongPlayback::setLoop()
+{
+	if(!loopQ_.empty())
+	{
+		loop_ = loopQ_.front();
+		loopQ_.pop();
+
+		prevEchoGen_ = 0;
+
+		result_ = stream1_->setLoopPoints(loop_.start, FMOD_TIMEUNIT_MS, loop_.end, FMOD_TIMEUNIT_MS);
+		errchk(result_);
+
+		result_ = system_->update();
+		errchk(result_);
+	}
+	else
+	{
+		loop_.effect = 5;
+
+		result_ = stream1_->setMode(FMOD_LOOP_OFF);
+		errchk(result_);
+
+		result_ = system_->update();
+		errchk(result_);
+	}
 }

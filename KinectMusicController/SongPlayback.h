@@ -29,6 +29,8 @@ public:
 
 	unsigned int getLength() { return songLength_; }
 	void getCurrentTime(unsigned int&);
+	Loop getCurrentLoop();
+	void checkLoop();
 
 	void setPlaybackRate(unsigned int&);
 	void setLowpassCutoff(float&);
@@ -71,11 +73,15 @@ private:
 	FMOD::Sound *stream1_;
 	FMOD::DSP *pitch_, *lowpass_, *highpass_, *echo_, *flange_, *tremolo_;
 
-	unsigned int version_, songLength_;
+	unsigned int version_, songLength_, startLoopOffset_, prevEchoGen_;
 	float defreq_, spfreq_, pit_;
 	bool active_;
 	string path_;
 	float mspb;
+	std::queue<Loop> loopQ_;
+	Loop loop_;
+
+	void setLoop();
 
 	StreamState streamState_;
 	FMOD_RESULT result_;

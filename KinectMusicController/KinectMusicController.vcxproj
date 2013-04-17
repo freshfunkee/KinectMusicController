@@ -95,6 +95,7 @@
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HandMonitor.h" />
     <ClInclude Include="KinectController.h" />
+    <ClInclude Include="Loop.h" />
     <ClInclude Include="Song.h" />
     <ClInclude Include="SongPlayback.h" />
   </ItemGroup>

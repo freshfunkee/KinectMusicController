@@ -6,7 +6,27 @@
 	<path>../wavFiles/FromTheBalcony.wav</path>
 	<bpm>95.3</bpm>
 	<loop>
-		<parameter></parameter>
-		<threshold></threshold>
+		<start value="0"/>
+		<end value="8400"/>
+		<effect value="0"/>
+		<threshold value="10000"/>
+	</loop>
+	<loop>
+		<start value="8401"/>
+		<end value="13434"/>
+		<effect value="4"/>
+		<threshold value="5"/>
+	</loop>
+	<loop>
+		<start value="13434"/>
+		<end value="23510"/>
+		<effect value="2"/>
+		<threshold value="2"/>
+	</loop>
+	<loop>
+		<start value="53677"/>
+		<end value="100000"/>
+		<effect value="1"/>
+		<threshold value="5000"/>
 	</loop>
 </song>

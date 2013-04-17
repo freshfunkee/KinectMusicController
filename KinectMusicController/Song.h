@@ -2,7 +2,10 @@
 #define SONG_H
 
 #include <string>
+#include <queue>
+
 #include <tinyxml/tinyxml.h>
+#include "Loop.h"
 
 using namespace std;
 
@@ -23,10 +26,13 @@ public:
 	string getArtist() { return artist_; }
 	string getAlbum() { return album_; }
 	string getPath() { return path_; }
+	std::queue<Loop> getLoop() { return loopQ_; }
 
 private:
 	float bpm_;
 	string title_,artist_,album_,path_;
+	std::queue<Loop> loopQ_;
+	Loop loop_;
 };
 
 #endif

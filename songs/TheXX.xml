@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<song>
+	<title>Intro</title>
+	<artist>The XX</artist>
+	<album>XX</album>
+	<path>../wavFiles/Intro.wav</path>
+	<bpm>100</bpm>
+</song>

@@ -142,6 +142,9 @@ void HandMonitor::checkStates()
 			startHover_[0] = 0;
 			buttonStates_[GUI_BUTTON_PAUSE_INDEX] = eButtonIdle;
 		}
+		playback_->checkLoop();
+
+		gui_->setLoop(playback_->getCurrentLoop());
 
 		playback_->getCurrentTime(playbackTime_);
 		gui_->setCurrentTime(playbackTime_);
@@ -430,7 +433,6 @@ void HandMonitor::setFilterParams()
 			float powY = ((float)rhX_-200)/93;
 			float cutoff = pow(10,powY);
 			playback_->setLowpassCutoff(cutoff);
-			printf("\r%.2f lowpass", cutoff);
 		}
 		else if(rhX_ < 200)
 		{
@@ -439,7 +441,6 @@ void HandMonitor::setFilterParams()
 			gui_->setLowpass(pos);
 
 			playback_->setLowpassCutoff(cutoff);
-			printf("\r%.2f lowpass", cutoff);
 		}
 		else if(rhX_ > 600)
 		{
@@ -448,7 +449,6 @@ void HandMonitor::setFilterParams()
 			gui_->setLowpass(pos);
 
 			playback_->setLowpassCutoff(cutoff);
-			printf("\r%.2f lowpass", cutoff);
 		}
 	}
 }
@@ -530,7 +530,6 @@ void HandMonitor::setTremoloParams()
 	{
 		float rate = ((float)rhY_ - 75)*0.036;
 
-		std::cout << "Rate: " << rate << "\r" << std::endl;
 		playback_->setTremoloRate(rate);
 		gui_->setTremoloRate(rhY_);
 	}

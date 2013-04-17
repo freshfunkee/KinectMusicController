@@ -50,5 +50,8 @@
     <ClInclude Include="HandMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Loop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

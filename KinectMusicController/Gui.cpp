@@ -52,7 +52,8 @@ void Gui::initialize()
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	jointImg_ = IMG_Load("Joint.png");
+	jointImg_ = IMG_Load("joint.png");
+	jointImgHand_ = IMG_Load("joint_hand.png");
 	font_ = TTF_OpenFont("Syncopate-Bold.ttf", GUI_STRING_TEMPO_SIZE);
 	font2_ = TTF_OpenFont("Syncopate-Regular.ttf", GUI_STRING_TEMPO_SIZE);
 }
@@ -95,15 +96,19 @@ void Gui::displayFrame(long **skelMatrix)
     }
 
 	guiSurface_ = SDL_CreateRGBSurface(SDL_HWSURFACE, GUI_SCREEN_SIZE_X, GUI_SCREEN_SIZE_Y, 16, 0, 0, 0, 0);
-	SDL_FillRect( guiSurface_, NULL, SDL_MapRGB(guiSurface_->format,204,204,204) );
+	SDL_FillRect( guiSurface_, NULL, SDL_MapRGB(guiSurface_->format,147,196,125) );
 
 	skelSurface_ = SDL_CreateRGBSurface(SDL_HWSURFACE, GUI_CAMERA_SIZE_X, GUI_CAMERA_SIZE_Y, 16, 0, 0, 0, 0);
-	SDL_FillRect( skelSurface_, NULL, SDL_MapRGB(guiSurface_->format,204,204,204) );
+	SDL_FillRect( skelSurface_, NULL, SDL_MapRGB(guiSurface_->format,147,196,125) );
 	
 	for(int i=0;i<20;i++)
 	{
 		SDL_Rect posRect = { skelMatrix[i][0], skelMatrix[i][1], 0, 0 };
-		SDL_BlitSurface( jointImg_, 0, skelSurface_, &posRect );
+
+		if(i == 7 || i == 11)
+			SDL_BlitSurface( jointImgHand_, 0, skelSurface_, &posRect );
+		else
+			SDL_BlitSurface( jointImg_, 0, skelSurface_, &posRect );
 	}
 
 	SDL_Rect mainScreen = { 0, GUI_SCREEN_OFFSET_Y, 0, 0 };
@@ -383,6 +388,138 @@ void Gui::drawGui()
 	SDL_BlitSurface(timelineSurface, NULL, guiSurface_, &timelineLocation);
 	SDL_FreeSurface(timelineSurface);
 
+	if(loop_.effect != 5)
+	{
+		SDL_Surface *loopSurface = IMG_Load("loop.png");
+
+		SDL_Rect loopStartLocation = { 35+(timelineFactor_ * (float)loop_.start), 540, 0, 0 };
+		SDL_Rect loopEndLocation = { 35+(timelineFactor_ * (float)loop_.end), 540, 0, 0 };
+
+		SDL_BlitSurface(loopSurface, NULL, guiSurface_, &loopStartLocation);
+		SDL_BlitSurface(loopSurface, NULL, guiSurface_, &loopEndLocation);
+
+		SDL_FreeSurface(loopSurface);
+
+		switch(loop_.effect) {
+		case 0:
+			{
+				SDL_Color foregroundColor = { 0, 0, 0 };
+				char str[20];
+
+				sprintf(str,"EFFECT: Lowpass");
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation1 = { 400, 475, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation1);
+
+				sprintf(str,"THRESHOLD: %.fHz",loop_.threshold);
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation2 = { 400, 500, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation2);
+				SDL_FreeSurface(textSurface_);
+			}
+			break;
+		case 1:
+			{
+				SDL_Color foregroundColor = { 0, 0, 0 };
+				char str[20];
+
+				sprintf(str,"EFFECT: Highpass");
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation1 = { 400, 475, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation1);
+
+				sprintf(str,"THRESHOLD: %.fHz",loop_.threshold);
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation2 = { 400, 500, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation2);
+				SDL_FreeSurface(textSurface_);
+			}
+			break;
+		case 2:
+			{
+				SDL_Color foregroundColor = { 0, 0, 0 };
+				char str[20];
+
+				sprintf(str,"EFFECT: Echo");
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation1 = { 400, 475, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation1);
+
+				sprintf(str,"THRESHOLD: %.f",loop_.threshold);
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation2 = { 400, 500, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation2);
+				SDL_FreeSurface(textSurface_);
+			}
+			break;
+		case 3:
+			{
+				SDL_Color foregroundColor = { 0, 0, 0 };
+				char str[20];
+
+				sprintf(str,"EFFECT: Flange");
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation1 = { 400, 475, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation1);
+
+				sprintf(str,"THRESHOLD: %.f",loop_.threshold);
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation2 = { 400, 500, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation2);
+				SDL_FreeSurface(textSurface_);
+			}
+			break;
+		case 4:
+			{
+				SDL_Color foregroundColor = { 0, 0, 0 };
+				char str[20];
+
+				sprintf(str,"EFFECT: Tremolo");
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation1 = { 400, 475, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation1);
+
+				sprintf(str,"THRESHOLD: %.fHz",loop_.threshold);
+				textSurface_ = TTF_RenderText_Blended(font2_, str,
+					foregroundColor);
+
+				SDL_Rect textLocation2 = { 400, 500, 0, 0 };
+
+				SDL_BlitSurface(textSurface_, NULL, guiSurface_, &textLocation2);
+				SDL_FreeSurface(textSurface_);
+			}
+			break;
+		}
+
+	}
+
 	SDL_Surface *cursorSurface = IMG_Load("cursor.png");
 	SDL_Rect cursorLocation = { currentTime_, 533, 0, 0 };
 	SDL_BlitSurface(cursorSurface, NULL, guiSurface_, &cursorLocation);
@@ -479,6 +616,11 @@ void Gui::setCurrentTime(unsigned int time)
 	}
 }
 
+void Gui::setLoop(const Loop &loop)
+{
+	loop_ = loop;
+}
+
 void Gui::incBeatCount()
 {
 	beatCount_++;
@@ -488,44 +630,4 @@ void Gui::zeroBeatCount()
 {
 	beatCount_ = 1;
 }
-//void Gui::initGuiButtons()
-//{
-//	/*for(int i=0;i<GUI_BUTTON_COUNT;i++)
-//    {
-//
-//        if(i == GUI_BUTTON_PAUSE_INDEX)
-//		{
-//			buttonStrings_[i][0] = "pause_button_idle.png";
-//			buttonStrings_[i][1] = "pause_button_hover.png";
-//			buttonStrings_[i][2] = "pause_button_hover2.png";
-//			buttonStrings_[i][3] = "pause_button_active.png";
-//			buttonStrings_[i][5] = "pause_button_inactive.png";
-//
-//			guiButtons_[i]->initButton( GUI_BUTTON_PAUSE_POS_X,  GUI_BUTTON_PAUSE_POS_Y, buttonStrings_[i] );
-//		}
-//		else
-//		{
-//			buttonStrings_[i][0] = "button_idle.png";
-//			buttonStrings_[i][1] = "button_hover.png";
-//			buttonStrings_[i][2] = "button_hover2.png";
-//			buttonStrings_[i][3] = "button_active.png";
-//			buttonStrings_[i][5] = "button_inactive.png";
-//
-//			switch(i) {
-//			case 1:
-//				guiButtons_[i]->initButton( GUI_BUTTON_FILTER_POS_X,  GUI_BUTTON_FILTER_POS_Y, buttonStrings_[i] );
-//				break;
-//			case 2:
-//				guiButtons_[i]->initButton( GUI_BUTTON_2_POS_X,  GUI_BUTTON_2_POS_Y, buttonStrings_[i] );
-//				break;
-//			case 3:
-//				guiButtons_[i]->initButton( GUI_BUTTON_3_POS_X,  GUI_BUTTON_3_POS_Y, buttonStrings_[i] );
-//				break;
-//			case 4:
-//				guiButtons_[i]->initButton( GUI_BUTTON_4_POS_X,  GUI_BUTTON_4_POS_Y, buttonStrings_[i] );
-//				break;
-//			}
-//		}
-//    }*/
-//}
 

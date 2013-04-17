@@ -34,8 +34,8 @@ string chooseFile();
 int main()
 {
 	//_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	printf("--Kinect Music Controller\n--Version: 0.5\n--Authour: Eoin Joyce\n--Features:"
-				"\n\t*Echo, Flange, Tremolo Effect\n\t*Background change\n\t*Clap Detector\n");
+	printf("--Kinect Music Controller\n--Version: 1.0\n--Authour: Eoin Joyce\n--Github: github.com/freshfunkee"
+				"\nWordpress: freshfunkee.wordpress.com\n");
 	printf("\n\nWelcome! Select a song to play:");
 
 	string path = chooseFile();

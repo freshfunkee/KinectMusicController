@@ -6,6 +6,7 @@ bool Song::readSongXml(const char* file)
 	if(!doc.LoadFile()) return false;
 
 	TiXmlElement *elSong = doc.FirstChildElement("song");
+	TiXmlNode *elLoop;
 
 	if(elSong)
 	{
@@ -25,6 +26,23 @@ bool Song::readSongXml(const char* file)
 		string bpm_str = elTitle->GetText();
 		bpm_ = atof(bpm_str.c_str());
 
+		for(elLoop = elSong->FirstChild("loop"); elLoop; elLoop = elLoop->NextSibling())
+		{
+			elTitle = elLoop->FirstChildElement("start");
+			elTitle->QueryUnsignedAttribute("value", &loop_.start);
+
+			elTitle = elLoop->FirstChildElement("end");
+			elTitle->QueryUnsignedAttribute("value", &loop_.end);
+
+			elTitle = elLoop->FirstChildElement("effect");
+			elTitle->QueryUnsignedAttribute("value", &loop_.effect);
+
+			elTitle = elLoop->FirstChildElement("threshold");
+			elTitle->QueryFloatAttribute("value", &loop_.threshold);
+
+			loopQ_.push(loop_);
+		}
+		
 		return true;
 	}
 	else return false;
